@@ -1,0 +1,238 @@
+package Persistance.documents;
+
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import Persistance.connexion.DatabaseConnection;
+import metier.documents.Document;
+import metier.documents.JournalScientifique;
+import metier.documents.Livre;
+import metier.documents.Magazine;
+import metier.documents.TheseUniversitaire;
+
+public class DocumentDAOImpl implements DocumentDAO {
+    private Connection connection;
+
+    public DocumentDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+    public DocumentDAOImpl() {
+        try {
+            this.connection = DatabaseConnection.getConnection(); // Utilisation de la méthode getConnection
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    @Override
+//    public void modifierDocument(Document document) {
+//        try {
+//            // Mise à jour dans la table document
+//            String updateDocumentSql = "UPDATE document SET titre = ?, auteur = ?, date_publication = ?, nombre_de_pages = ? WHERE id = ?";
+//            PreparedStatement pstmt = connection.prepareStatement(updateDocumentSql);
+//            pstmt.setString(1, document.getTitre());
+//            pstmt.setString(2, document.getAuteur());
+//            pstmt.setDate(3, Date.valueOf(document.getDatePublication()));
+//            pstmt.setInt(4, document.getNombreDePages());
+//            pstmt.setInt(5, document.getId());
+//            pstmt.executeUpdate();
+//
+//            // Mise à jour dans les tables spécifiques (livre, magazine, etc.)
+//            if (document instanceof Livre) {
+//                Livre livre = (Livre) document;
+//                String updateLivreSql = "UPDATE livre SET isbn = ? WHERE document_id = ?";
+//                PreparedStatement livreStmt = connection.prepareStatement(updateLivreSql);
+//                livreStmt.setString(1, livre.getIsbn());
+//                livreStmt.setInt(2, livre.getId());
+//                livreStmt.executeUpdate();
+//            } else if (document instanceof Magazine) {
+//                Magazine magazine = (Magazine) document;
+//                String updateMagazineSql = "UPDATE magazine SET numero = ? WHERE document_id = ?";
+//                PreparedStatement magazineStmt = connection.prepareStatement(updateMagazineSql);
+//                magazineStmt.setInt(1, magazine.getNumero());
+//                magazineStmt.setInt(2, magazine.getId());
+//                magazineStmt.executeUpdate();
+//            }
+//            // Ajoute des conditions pour les autres types de documents (ThèseUniversitaire, JournalScientifique)
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+//    @Override
+//    public List<Document> getTousLesDocuments() {
+//        List<Document> documents = new ArrayList<>();
+//        try {
+//            String query = "SELECT * FROM document";
+//            Statement stmt = connection.createStatement();
+//            ResultSet rs = stmt.executeQuery(query);
+//            while (rs.next()) {
+//                int id = rs.getInt("id");
+//                String titre = rs.getString("titre");
+//                String auteur = rs.getString("auteur");
+//                LocalDate datePublication = rs.getDate("date_publication").toLocalDate();
+//                int nombreDePages = rs.getInt("nombre_de_pages");
+//
+//                Document document = new Document( titre, auteur, datePublication, nombreDePages);
+//                documents.add(document);
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return documents;
+//    }
+
+	@Override
+	public void ajouter(Document document) {
+		try {
+            // Insertion dans la table document
+            String insertDocumentSql = "INSERT INTO document (titre, auteur, date_publication, nombre_de_pages) VALUES (?, ?, ?, ?) RETURNING id";
+            PreparedStatement pstmt = connection.prepareStatement(insertDocumentSql);
+            pstmt.setString(1, document.getTitre());
+            pstmt.setString(2, document.getAuteur());
+            pstmt.setDate(3, Date.valueOf(document.getDatePublication()));
+            pstmt.setInt(4, document.getNombreDePages());
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                int documentId = rs.getInt(1);
+                document.setId(documentId); 
+
+                // Insertion dans les tables spécifiques
+                if (document instanceof Livre) {
+                    Livre livre = (Livre) document;
+                    String insertLivreSql = "INSERT INTO livre (document_id, isbn) VALUES (?, ?)";
+                    PreparedStatement livreStmt = connection.prepareStatement(insertLivreSql);
+                    livreStmt.setInt(1, documentId);
+                    livreStmt.setString(2, livre.getIsbn());
+                    livreStmt.executeUpdate();
+                } else if (document instanceof Magazine) {
+                    Magazine magazine = (Magazine) document;
+                    String insertMagazineSql = "INSERT INTO magazine (document_id, numero) VALUES (?, ?)";
+                    PreparedStatement magazineStmt = connection.prepareStatement(insertMagazineSql);
+                    magazineStmt.setInt(1, documentId);
+                    magazineStmt.setInt(2, magazine.getNumero());
+                    magazineStmt.executeUpdate();
+                } else if (document instanceof JournalScientifique) {
+                    JournalScientifique journalScientifique = (JournalScientifique) document;
+                    String insertJournalScientifiqueSql = "INSERT INTO journal_scientifique (document_id, domaine_recherche) VALUES (?, ?)";
+                    PreparedStatement journalScientifiqueStmt = connection.prepareStatement(insertJournalScientifiqueSql);
+                    journalScientifiqueStmt.setInt(1, documentId);
+                    journalScientifiqueStmt.setString(2, journalScientifique.getDomaineRecherche());
+                    journalScientifiqueStmt.executeUpdate();
+                } else if (document instanceof TheseUniversitaire) {
+                    TheseUniversitaire theseUniversitaire = (TheseUniversitaire) document;
+                    String insertTheseUniversitaireSql = "INSERT INTO these_universitaire (document_id, universite, domaine) VALUES (?, ?, ?)";
+                    PreparedStatement theseUniversitaireStmt = connection.prepareStatement(insertTheseUniversitaireSql);
+                    theseUniversitaireStmt.setInt(1, documentId);
+                    theseUniversitaireStmt.setString(2, theseUniversitaire.getUniversite());
+                    theseUniversitaireStmt.setString(3, theseUniversitaire.getDomaine());
+                    theseUniversitaireStmt.executeUpdate();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+		
+	}
+
+	@Override
+	public void supprimer(int id) {
+		 try {
+	            // Suppression du document
+	            String deleteDocumentSql = "DELETE FROM document WHERE id = ?";
+	            PreparedStatement pstmt = connection.prepareStatement(deleteDocumentSql);
+	            pstmt.setInt(1, id);
+	            pstmt.executeUpdate();
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+
+	}
+
+	@Override
+	public Document trouverParId(int id) {
+		
+		return null;
+	}
+
+	@Override
+	public List<Document> rechercher(String critere) { 
+		List<Document> documentsList = new ArrayList<>(); // Changed from HashMap to List
+		try {
+			String query = "SELECT d.id AS document_id, d.titre, d.auteur, d.date_publication, d.nombre_de_pages, " + // Fixed line break
+                                     "l.isbn AS livre_isbn, " + // Fixed line break
+                                     "m.numero AS magazine_numero, " + // Fixed line break
+                                     "tu.universite AS these_universitaire_universite, tu.domaine AS these_universitaire_domaine, " + // Fixed line break
+                                     "js.domaine_recherche AS journal_scientifique_domaine_recherche, " + // Fixed line break
+                                     "CASE " + // Fixed line break
+                                         "WHEN l.id IS NOT NULL THEN 'Livre' " + // Fixed line break
+                                         "WHEN m.id IS NOT NULL THEN 'Magazine' " + // Fixed line break
+                                         "WHEN tu.id IS NOT NULL THEN 'Thèse Universitaire' " + // Fixed line break
+                                         "WHEN js.id IS NOT NULL THEN 'Journal Scientifique' " + // Fixed line break
+                                         "ELSE 'Inconnu' " + // Fixed line break
+                                     "END AS type " + // Fixed line break
+                                "FROM document d " + // Fixed line break
+                                "LEFT JOIN livre l ON d.id = l.document_id " + // Fixed line break
+                                "LEFT JOIN magazine m ON d.id = m.document_id " + // Fixed line break
+                                "LEFT JOIN these_universitaire tu ON d.id = tu.document_id " + // Fixed line break
+                                "LEFT JOIN journal_scientifique js ON d.id = js.document_id " + // Fixed line break
+                                "WHERE d.titre ILIKE ? " + // Fixed line break
+                                 "OR d.auteur ILIKE ?"; // Fixed line break
+			PreparedStatement pstmt = connection.prepareStatement(query);
+			String searchPattern = "%" + critere + "%";
+			pstmt.setString(1, searchPattern);
+			pstmt.setString(2, searchPattern);
+			ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) { 
+                System.out.println("ID: " + rs.getInt("id") + ", Titre: " + rs.getString("titre"));
+            }
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String titre = rs.getString("titre");
+				String auteur = rs.getString("auteur");
+				LocalDate datePublication = rs.getDate("date_publication").toLocalDate();
+				int nombreDePages = rs.getInt("nombre_de_pages");
+				String type = rs.getString("type");
+
+				Document document = createDocument(type, titre, auteur, datePublication, nombreDePages, rs);
+				
+				if (document != null) {
+					document.setId(id); // Assurez-vous de définir l'ID
+					documentsList.add(document); // Add to List instead of HashMap
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return documentsList; // Return the List
+	}
+
+	private Document createDocument(String type, String titre, String auteur, LocalDate datePublication, int nombreDePages, ResultSet rs) throws SQLException {
+		switch (type) {
+			case "Livre":
+				String isbn = rs.getString("isbn"); 
+				return new Livre(titre, auteur, datePublication, nombreDePages, isbn);
+			case "Magazine":
+            int numero = rs.getInt("numero");
+				return new Magazine(titre, auteur, datePublication, nombreDePages, numero);
+			case "JournalScientifique":
+            String domaineRecherche = rs.getString("domaineRecherche");
+				return new JournalScientifique(titre, auteur, datePublication, nombreDePages, domaineRecherche);
+			case "TheseUniversitaire":
+            String universite = rs.getString("universite");
+            String domaine = rs.getString("domaine");
+				return new TheseUniversitaire(titre, auteur, datePublication, nombreDePages, universite, domaine);
+			default:
+				return null;
+		}
+	}
+}

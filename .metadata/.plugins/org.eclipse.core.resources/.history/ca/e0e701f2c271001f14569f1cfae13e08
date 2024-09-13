@@ -1,0 +1,84 @@
+package Persistance.emprunts;
+
+
+import metier.emprunts.Emprunt;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import Persistance.connexion.DatabaseConnection;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EmpruntDAOImpl implements EmpruntDAO {
+    private Connection connection;
+
+    public EmpruntDAOImpl(Connection connection) {
+        this.connection = connection;
+
+    }
+    public EmpruntDAOImpl() {
+          try {
+            this.connection = DatabaseConnection.getInstance().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Emprunt> findByDocumentId(int documentId) {
+        List<Emprunt> emprunts = new ArrayList<>();
+        String query = "SELECT * FROM emprunts WHERE document_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, documentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Emprunt emprunt = new Emprunt();
+                    // Populate the Emprunt object with data from ResultSet
+                    emprunt.
+                    emprunt.setDocumentId(rs.getInt("document_id"));
+                    // Set other fields as needed
+                    emprunts.add(emprunt);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return emprunts;
+    }
+
+    @Override
+    public boolean disponible(int documentId) {
+        //use findByDocumentId to check if the document is available
+         res=findByDocumentId(documentId);
+        return false;
+    }
+    
+	@Override
+	public void ajouter(Emprunt emprunt) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void supprimer(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Emprunt trouverParId(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<Emprunt> rechercher(String critere) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Emprunt findById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}   
+}

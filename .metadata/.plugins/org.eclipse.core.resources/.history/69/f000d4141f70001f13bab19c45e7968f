@@ -1,0 +1,36 @@
+package metier.documents;
+
+import java.time.LocalDate;
+
+public class TheseUniversitaire extends Document {
+    private String universite;
+    private String domaine;
+
+    public TheseUniversitaire( String titre, String auteur, LocalDate datePublication, int nombreDePages, String universite, String domaine) {
+        super( titre, auteur, datePublication, nombreDePages);
+        this.universite = universite;
+        this.domaine = domaine;
+    }
+
+    @Override
+    public void emprunter() {
+        System.out.println("La thèse \"" + titre + "\" a été empruntée.");
+    }
+
+    @Override
+    public void retourner() {
+        System.out.println("La thèse \"" + titre + "\" a été retournée.");
+    }
+
+    @Override
+    public void afficherDetails() {
+        System.out.println("Détails de la Thèse Universitaire:");
+        System.out.println("Titre: " + titre);
+        System.out.println("Auteur: " + auteur);
+        System.out.println("Université: " + universite);
+        System.out.println("Domaine: " + domaine);
+        System.out.println("Date de Publication: " + datePublication);
+        System.out.println("Nombre de Pages: " + nombreDePages);
+    }
+}
+

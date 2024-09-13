@@ -1,0 +1,40 @@
+package Persistance.utilisateurs;
+
+
+import metier.utilisateurs.Utilisateur;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class UtilisateurDAOImpl implements UtilisateurDAO {
+    private Connection connection;
+
+    public UtilisateurDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    @Override
+    public void ajouter(Utilisateur utilisateur) {
+        // Implémentation pour ajouter un utilisateur
+    }
+
+    @Override
+    public void supprimer(int id) {
+        // Implémentation pour supprimer un utilisateur
+    }
+
+    @Override
+    public Utilisateur trouverParId(int id) {
+        // Implémentation pour trouver un utilisateur par ID
+        return null;
+    }
+
+    @Override
+    public List<Utilisateur> rechercher(String critere) {
+        // Implémentation pour rechercher des utilisateurs
+        return new ArrayList<>();
+    }
+}

@@ -1,0 +1,39 @@
+package persistance.documents;
+
+import metier.documents.Document;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DocumentDAOImpl implements DocumentDAO {
+    private Connection connection;
+
+    public DocumentDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    @Override
+    public void ajouter(Document document) {
+        // Implémentation pour ajouter un document
+    }
+
+    @Override
+    public void supprimer(int id) {
+        // Implémentation pour supprimer un document
+    }
+
+    @Override
+    public Document trouverParId(int id) {
+        // Implémentation pour trouver un document par ID
+        return null;
+    }
+
+    @Override
+    public List<Document> rechercher(String critere) {
+        // Implémentation pour rechercher des documents
+        return new ArrayList<>();
+    }
+}

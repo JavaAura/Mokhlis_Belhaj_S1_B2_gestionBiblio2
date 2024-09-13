@@ -1,0 +1,12 @@
+package Persistance.documents;
+
+
+import metier.documents.Document;
+import java.util.List;
+
+public interface DocumentDAO {
+    void ajouter(Document document);
+    void supprimer(int id);
+    Document trouverParId(int id);
+    List<Document> rechercher(String critere);
+}

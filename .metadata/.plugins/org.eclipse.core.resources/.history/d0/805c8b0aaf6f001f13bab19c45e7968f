@@ -1,0 +1,269 @@
+package Presentation;
+
+
+
+import metier.Bibliotheque;
+import metier.documents.Document;
+import metier.utilisateurs.Utilisateur;
+import metier.emprunts.Emprunt;
+import metier.emprunts.Reservation;
+
+import java.util.List;
+import java.util.Scanner;
+
+public class ConsoleUI {
+    private Scanner scanner;
+    private Bibliotheque bibliotheque;
+
+    public ConsoleUI(Bibliotheque bibliotheque) {
+        this.scanner = new Scanner(System.in);
+        this.bibliotheque = bibliotheque;
+    }
+
+    public void afficherMenuPrincipal() {
+        System.out.println("===== Menu Principal =====");
+        System.out.println("1. Gestion des documents");
+        System.out.println("2. Gestion des utilisateurs");
+        System.out.println("3. Gestion des emprunts");
+        System.out.println("4. Gestion des réservations");
+        System.out.println("5. Quitter");
+        System.out.println("==========================");
+        System.out.print("Veuillez choisir une option: ");
+    }
+
+    public void gererChoixMenuPrincipal() {
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                afficherMenuDocuments();
+                break;
+            case 2:
+                afficherMenuUtilisateurs();
+                break;
+            case 3:
+                afficherMenuEmprunts();
+                break;
+            case 4:
+                afficherMenuReservations();
+                break;
+            case 5:
+                System.out.println("Au revoir !");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    // === Gestion des documents ===
+    public void afficherMenuDocuments() {
+        System.out.println("===== Gestion des Documents =====");
+        System.out.println("1. Ajouter un document");
+        System.out.println("2. Supprimer un document");
+        System.out.println("3. Rechercher un document");
+        System.out.println("4. Retour au menu principal");
+        System.out.println("=================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                ajouterDocument();
+                break;
+            case 2:
+                supprimerDocument();
+                break;
+            case 3:
+                rechercherDocuments();
+                break;
+            case 4:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void ajouterDocument() {
+        System.out.println("Ajouter un document");
+        // Demander les informations du document et appeler la méthode d'ajout
+    }
+
+    private void supprimerDocument() {
+        System.out.print("Entrez l'ID du document à supprimer: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        bibliotheque.supprimerDocument(id);
+        System.out.println("Document supprimé.");
+    }
+
+    private void rechercherDocuments() {
+        System.out.print("Entrez le critère de recherche: ");
+        String critere = scanner.nextLine();
+        List<Document> documents = bibliotheque.rechercherDocuments(critere);
+        documents.forEach(doc -> System.out.println(doc.toString())); // Remplacer par la méthode d'affichage appropriée
+    }
+
+    // === Gestion des utilisateurs ===
+    public void afficherMenuUtilisateurs() {
+        System.out.println("===== Gestion des Utilisateurs =====");
+        System.out.println("1. Ajouter un utilisateur");
+        System.out.println("2. Supprimer un utilisateur");
+        System.out.println("3. Rechercher un utilisateur");
+        System.out.println("4. Retour au menu principal");
+        System.out.println("====================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                ajouterUtilisateur();
+                break;
+            case 2:
+                supprimerUtilisateur();
+                break;
+            case 3:
+                rechercherUtilisateurs();
+                break;
+            case 4:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void ajouterUtilisateur() {
+        System.out.println("Ajouter un utilisateur");
+        // Demander les informations de l'utilisateur et appeler la méthode d'ajout
+    }
+
+    private void supprimerUtilisateur() {
+        System.out.print("Entrez l'ID de l'utilisateur à supprimer: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        bibliotheque.supprimerUtilisateur(id);
+        System.out.println("Utilisateur supprimé.");
+    }
+
+    private void rechercherUtilisateurs() {
+        System.out.print("Entrez le critère de recherche: ");
+        String critere = scanner.nextLine();
+        List<Utilisateur> utilisateurs = bibliotheque.rechercherUtilisateurs(critere);
+        utilisateurs.forEach(util -> System.out.println(util.toString())); // Remplacer par la méthode d'affichage appropriée
+    }
+
+    // === Gestion des emprunts ===
+    public void afficherMenuEmprunts() {
+        System.out.println("===== Gestion des Emprunts =====");
+        System.out.println("1. Emprunter un document");
+        System.out.println("2. Retourner un document");
+        System.out.println("3. Retour au menu principal");
+        System.out.println("================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                emprunterDocument();
+                break;
+            case 2:
+                retournerDocument();
+                break;
+            case 3:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void emprunterDocument() {
+        System.out.print("Entrez l'ID du document à emprunter: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        // Demander des informations sur l'utilisateur et appeler la méthode d'emprunt
+    }
+
+    private void retournerDocument() {
+        System.out.print("Entrez l'ID du document à retourner: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        // Appeler la méthode de retour
+    }
+
+    // === Gestion des réservations ===
+    public void afficherMenuReservations() {
+        System.out.println("===== Gestion des Réservations =====");
+        System.out.println("1. Réserver un document");
+        System.out.println("2. Annuler une réservation");
+        System.out.println("3. Retour au menu principal");
+        System.out.println("====================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                reserverDocument();
+                break;
+            case 2:
+                annulerReservation();
+                break;
+            case 3:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void reserverDocument() {
+        System.out.print("Entrez l'ID du document à réserver: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        // Demander des informations sur l'utilisateur et appeler la méthode de réservation
+    }
+
+    private void annulerReservation() {
+        System.out.print("Entrez l'ID de la réservation à annuler: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        // Appeler la méthode d'annulation
+    }
+
+    public static void main(String[] args) {
+        // Créer une connexion à la base de données
+        // Créer les DAO
+        // Créer une instance de Bibliotheque
+        // Créer une instance de ConsoleUI avec l'objet Bibliotheque
+
+        // Exemple de code de démarrage (à adapter selon ton projet)
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            DocumentDAO documentDAO = new DocumentDAOImpl(connection);
+            UtilisateurDAO utilisateurDAO = new UtilisateurDAOImpl(connection);
+            EmpruntDAO empruntDAO = new EmpruntDAOImpl(connection);
+
+            Bibliotheque bibliotheque = new Bibliotheque(documentDAO, utilisateurDAO, empruntDAO);
+            ConsoleUI consoleUI = new ConsoleUI(bibliotheque);
+
+            while (true) {
+                consoleUI.afficherMenuPrincipal();
+                consoleUI.gererChoixMenuPrincipal();
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur de connexion à la base de données: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,14 @@
+1725994534962	Rename package 'persistance'
+1725994973634	Rename package 'Persistance.documents'
+1725996381984	Move compilation unit
+1725996412464	Rename package 'metier.documents.utilisateurs'
+1725997029432	Rename compilation unit 'Documents.java'
+1725997170403	Rename type 'Utilisateurs'
+1726046383051	Encapsulate field 'domaine, ...'
+1726046419904	Encapsulate field 'universite, ...'
+1726046626781	Rename package 'metier.test'
+1726046636988	Copy package
+1726046789858	Delete element
+1726046933496	Encapsulate field 'domaineRecherche, ...'
+1726047279940	Delete element
+1726226743254	Encapsulate field 'id, ...'

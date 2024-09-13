@@ -1,0 +1,137 @@
+package Persistance.emprunts;
+
+
+import metier.documents.Document;
+import metier.emprunts.Emprunt;
+import metier.utilisateurs.Utilisateur;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import Persistance.connexion.DatabaseConnection;
+import Persistance.documents.DocumentDAOImpl;
+import Persistance.utilisateurs.UtilisateurDAOImpl;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class EmpruntDAOImpl implements EmpruntDAO {
+    private Connection connection;
+
+    public EmpruntDAOImpl(Connection connection) {
+        this.connection = connection;
+
+    }
+    public EmpruntDAOImpl() {
+          try {
+            this.connection = DatabaseConnection.getInstance().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Emprunt> findByDocumentId(int documentId) {
+        List<Emprunt> emprunts = new ArrayList<>();
+        String query = "SELECT * FROM emprunt WHERE document_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, documentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // create a document object 
+                    DocumentDAOImpl documentDAO = new DocumentDAOImpl();
+                    Document document = documentDAO.getById(rs.getInt("document_id"));
+                    UtilisateurDAOImpl utilisateurDAO = new UtilisateurDAOImpl();
+                    Utilisateur utilisateur = utilisateurDAO.trouverParId(rs.getInt("utilisateur_id"));
+                    Emprunt emprunt = new Emprunt(utilisateur, document);
+                    // Populate the Emprunt object with data from ResultSet
+                    emprunt.setId(rs.getInt("id"));
+                    emprunt.setDateEmprunt(rs.getDate("date_emprunt").toLocalDate());
+                    
+                    // Handle null date_retour
+                    java.sql.Date dateRetour = rs.getDate("date_retour");
+                    if (dateRetour != null) {
+                        emprunt.setDateRetour(dateRetour.toLocalDate());
+                    } else {
+                        emprunt.setDateRetour(null);
+                    }
+
+                    // Set other fields as needed
+                    emprunts.add(emprunt);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return emprunts;
+    }
+
+    @Override
+    public boolean disponible(int documentId) {
+        String query = "SELECT COUNT(*) FROM emprunt WHERE document_id = ? AND date_retour IS NULL";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, documentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) == 0; // If count is 0, the document is available
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // In case of an error, assume the document is not available
+    }
+    
+    @Override
+    public int getNombreEmprunts(int utilisateurId) {
+        String query = "SELECT COUNT(*) FROM emprunt WHERE utilisateur_id = ? AND date_retour IS NULL";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, utilisateurId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                	
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+	@Override
+	public void ajouter(Emprunt emprunt) {
+		String query = "INSERT INTO emprunt (utilisateur_id, document_id, date_emprunt) VALUES (?, ?, ?)";
+		try (PreparedStatement stmt = connection.prepareStatement(query)) {
+			stmt.setInt(1, emprunt.getUtilisateur().getId());
+			stmt.setInt(2, emprunt.getDocument().getId());
+			stmt.setDate(3, java.sql.Date.valueOf(emprunt.getDateEmprunt()));
+			
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	@Override
+	public void supprimer(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public Emprunt trouverParId(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public List<Emprunt> rechercher(String critere) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Emprunt findById(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}   
+}

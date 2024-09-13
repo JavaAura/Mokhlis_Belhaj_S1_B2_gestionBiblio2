@@ -1,0 +1,5 @@
+package Persistance.emprunts;
+
+public class EmpruntDAOImpl {
+
+}

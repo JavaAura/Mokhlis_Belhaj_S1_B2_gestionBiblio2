@@ -1,0 +1,42 @@
+package metier.documents;
+
+import java.time.LocalDate;
+
+public class Livre extends Document implements Empruntable, Reservable {
+    private String isbn;
+
+    // Constructeur
+    public Livre(int id, String titre, String auteur, LocalDate datePublication, int nombreDePages, String isbn) {
+        super(id, titre, auteur, datePublication, nombreDePages);
+        this.isbn = isbn;
+    }
+
+    // Getters et Setters
+    public String getIsbn() { return isbn; }
+    public void setIsbn(String isbn) { this.isbn = isbn; }
+
+    @Override
+    public void afficherDetails() {
+        System.out.println("Livre: " + getTitre() + " (ISBN: " + isbn + ")");
+    }
+
+    @Override
+    public void emprunter() {
+        System.out.println("Le livre " + getTitre() + " est emprunté.");
+    }
+
+    @Override
+    public void retourner() {
+        System.out.println("Le livre " + getTitre() + " est retourné.");
+    }
+
+    @Override
+    public void reserver() {
+        System.out.println("Le livre " + getTitre() + " est réservé.");
+    }
+
+    @Override
+    public void annulerReservation() {
+        System.out.println("La réservation du livre " + getTitre() + " est annulée.");
+    }
+}

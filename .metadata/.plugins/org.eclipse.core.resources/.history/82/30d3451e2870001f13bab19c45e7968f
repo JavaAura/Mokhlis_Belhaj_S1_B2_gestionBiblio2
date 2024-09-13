@@ -1,0 +1,33 @@
+package Persistance.documents;
+
+import java.util.List;
+
+import metier.documents.Document;
+
+public class DocumentDAOImpl implements DocumentDAO {
+
+	@Override
+	public void ajouter(Document document) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void supprimer(int id) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Document trouverParId(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Document> rechercher(String critere) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

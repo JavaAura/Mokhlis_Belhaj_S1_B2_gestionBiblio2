@@ -1,0 +1,177 @@
+package metier;
+
+import metier.documents.Document;
+import metier.utilisateurs.Utilisateur;
+import metier.emprunts.Emprunt;
+
+import java.util.List;
+
+import Persistance.documents.DocumentDAO;
+import Persistance.emprunts.EmpruntDAO;
+import Persistance.utilisateurs.UtilisateurDAO;
+
+public class Bibliotheque {
+    private DocumentDAO documentDAO;
+    private UtilisateurDAO utilisateurDAO;
+    private EmpruntDAO empruntDAO;
+
+    /**
+     * Constructeur de la classe Bibliotheque.
+     * @param documentDAO DAO pour les opérations sur les documents.
+     * @param utilisateurDAO DAO pour les opérations sur les utilisateurs.
+     * @param empruntDAO DAO pour les opérations sur les emprunts.
+     */
+    public Bibliotheque(DocumentDAO documentDAO, UtilisateurDAO utilisateurDAO, EmpruntDAO empruntDAO) {
+        this.documentDAO = documentDAO;
+        this.utilisateurDAO = utilisateurDAO;
+        this.empruntDAO = empruntDAO;
+    }
+
+    // Gestion des documents
+
+    /**
+     * Ajoute un document à la bibliothèque.
+     * @param document Le document à ajouter.
+     */
+    public void ajouterDocument(Document document) {
+        documentDAO.ajouter(document);
+    }
+
+    /**
+     * Récupère tous les documents de la bibliothèque.
+     * @return Liste de tous les documents.
+     */
+    public List<Document> getTousLesDocuments() {
+        return documentDAO.getTousLesDocuments();
+    }
+    /**
+     * modification du document de la bibliothèque
+     * @param document
+     */
+    public void modifierDocument(Document document) {
+    documentDAO.modifierDocument(document);
+    }
+
+    /**
+     * Supprime un document de la bibliothèque par son identifiant.
+     * @param id L'identifiant du document à supprimer.
+     */
+    public void supprimerDocument(int id) {
+        documentDAO.supprimer(id);
+    }
+
+    /**
+     * Recherche des documents selon un critère.
+     * @param critere Le critère de recherche.
+     * @return Liste de documents correspondant au critère.
+     */
+    public List<Document> rechercherDocuments(String critere) {
+        return documentDAO.rechercher(critere);
+    }
+
+    // Gestion des utilisateurs
+
+    /**
+     * Ajoute un utilisateur à la bibliothèque.
+     * @param utilisateur L'utilisateur à ajouter.
+     */
+    public void ajouterUtilisateur(Utilisateur utilisateur) {
+        utilisateurDAO.ajouter(utilisateur);
+    }
+
+    /**
+     * Supprime un utilisateur de la bibliothèque par son identifiant.
+     * @param id L'identifiant de l'utilisateur à supprimer.
+     */
+    public void supprimerUtilisateur(int id) {
+        utilisateurDAO.supprimer(id);
+    }
+
+    /**
+     * Trouve un utilisateur par son identifiant.
+     * @param id L'identifiant de l'utilisateur.
+     * @return L'utilisateur correspondant à l'identifiant.
+     */
+    public Utilisateur trouverUtilisateurParId(int id) {
+        return utilisateurDAO.trouverParId(id);
+    }
+
+    /**
+     * Recherche des utilisateurs selon un critère.
+     * @param critere Le critère de recherche.
+     * @return Liste des utilisateurs correspondant au critère.
+     */
+    public List<Utilisateur> rechercherUtilisateurs(String critere) {
+        return utilisateurDAO.rechercher(critere);
+    }
+
+    // Gestion des emprunts
+
+    /**
+     * Ajoute un emprunt à la bibliothèque.
+     * @param emprunt L'emprunt à ajouter.
+     */
+    public void ajouterEmprunt(Emprunt emprunt) {
+        empruntDAO.ajouter(emprunt);
+    }
+
+    /**
+     * Supprime un emprunt de la bibliothèque par son identifiant.
+     * @param id L'identifiant de l'emprunt à supprimer.
+     */
+    public void supprimerEmprunt(int id) {
+        empruntDAO.supprimer(id);
+    }
+
+    /**
+     * Trouve un emprunt par son identifiant.
+     * @param id L'identifiant de l'emprunt.
+     * @return L'emprunt correspondant à l'identifiant.
+     */
+    public Emprunt trouverEmpruntParId(int id) {
+        return empruntDAO.trouverParId(id);
+    }
+
+    /**
+     * Recherche des emprunts selon un critère.
+     * @param critere Le critère de recherche.
+     * @return Liste des emprunts correspondant au critère.
+     */
+    public List<Emprunt> rechercherEmprunts(String critere) {
+        return empruntDAO.rechercher(critere);
+    }
+
+    /**
+     * Permet à un utilisateur d'emprunter un document.
+     * @param documentId L'identifiant du document à emprunter.
+     * @param utilisateurId L'identifiant de l'utilisateur emprunteur.
+     */
+    public void emprunterDocument(int documentId, int utilisateurId) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Permet de retourner un document emprunté.
+     * @param documentId L'identifiant du document à retourner.
+     */
+    public void retournerDocument(int documentId) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Permet à un utilisateur de réserver un document.
+     * @param documentId L'identifiant du document à réserver.
+     * @param utilisateurId L'identifiant de l'utilisateur réservant le document.
+     */
+    public void reserverDocument(int documentId, int utilisateurId) {
+        // TODO Auto-generated method stub
+    }
+
+    /**
+     * Annule la réservation d'un document.
+     * @param documentId L'identifiant du document dont la réservation doit être annulée.
+     */
+    public void annulerReservation(int documentId) {
+        // TODO Auto-generated method stub
+    }
+}

@@ -1,0 +1,5 @@
+package Persistance.connexion;
+
+public class DatabaseConnection {
+
+}

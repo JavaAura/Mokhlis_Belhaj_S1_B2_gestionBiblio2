@@ -1,0 +1,175 @@
+package Persistance.utilisateurs;
+
+
+import metier.utilisateurs.Etudiant;
+import metier.utilisateurs.Professeur;
+import metier.utilisateurs.Utilisateur;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+import Persistance.connexion.DatabaseConnection;
+
+public class UtilisateurDAOImpl implements UtilisateurDAO {
+    private Connection connection;
+
+    public UtilisateurDAOImpl() {
+        // Le constructeur sans argument n'initialise pas la connexion
+    }
+
+    public UtilisateurDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    private Connection getConnection() throws SQLException {
+        if (this.connection == null || this.connection.isClosed()) {
+            this.connection = DatabaseConnection.getInstance().getConnection();
+        }
+        return this.connection;
+    }
+
+    @Override
+    public void ajouter(Utilisateur utilisateur) {
+        String sqlUtilisateur = "INSERT INTO Utilisateur (nom, email) VALUES (?, ?)";
+        try (PreparedStatement pstmtUtilisateur = getConnection().prepareStatement(sqlUtilisateur, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            pstmtUtilisateur.setString(1, utilisateur.getNom());
+            pstmtUtilisateur.setString(2, utilisateur.getEmail());
+            pstmtUtilisateur.executeUpdate();
+            
+            try (ResultSet generatedKeys = pstmtUtilisateur.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int userId = generatedKeys.getInt(1);
+                    
+                    if (utilisateur instanceof Etudiant) {
+                        Etudiant etudiant = (Etudiant) utilisateur;
+                        String sqlEtudiant = "INSERT INTO Etudiant (id, matricule) VALUES (?, ?)";
+                        try (PreparedStatement pstmtEtudiant = getConnection().prepareStatement(sqlEtudiant)) {
+                            pstmtEtudiant.setInt(1, userId);
+                            pstmtEtudiant.setString(2, etudiant.getMatricule());
+                            pstmtEtudiant.executeUpdate();
+                        }
+                    } else if (utilisateur instanceof Professeur) {
+                        Professeur professeur = (Professeur) utilisateur;
+                        String sqlProfesseur = "INSERT INTO Professeur (id, specialite) VALUES (?, ?)";
+                        try (PreparedStatement pstmtProfesseur = getConnection().prepareStatement(sqlProfesseur)) {
+                            pstmtProfesseur.setInt(1, userId);
+                            pstmtProfesseur.setString(2, professeur.getSpecialite());
+                            pstmtProfesseur.executeUpdate();
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Considérez de lancer une exception personnalisée ou de logger l'erreur
+        }
+    }
+
+    @Override
+    public boolean supprimer(int id) {
+        String sqlDeleteUtilisateur = "DELETE FROM utilisateur WHERE id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlDeleteUtilisateur)) {
+
+            pstmt.setInt(1, id);
+            int rowsAffected = pstmt.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Considérez de logger l'erreur
+            return false;
+        }
+    }
+
+    @Override
+    public Utilisateur trouverParId(int id) {
+        // Implémentation pour trouver un utilisateur par ID
+        return null;
+    }
+
+    @Override
+    public List<Utilisateur> rechercher(String critere) {
+        List<Utilisateur> utilisateurs = new ArrayList<>();
+        String sql = "SELECT u.id, u.nom, u.email, e.matricule, p.specialite FROM Utilisateur u " +
+                     "LEFT JOIN Etudiant e ON u.id = e.id " +
+                     "LEFT JOIN Professeur p ON u.id = p.id " +
+                     "WHERE u.nom LIKE ?";
+        
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, "%" + critere + "%");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String nom = rs.getString("nom");
+                    String email = rs.getString("email");
+                    String matricule = rs.getString("matricule");
+                    String specialite = rs.getString("specialite");
+                    
+                    Utilisateur utilisateur;
+                    if (matricule != null) {
+                        utilisateur = new Etudiant(nom, email, matricule);
+                        utilisateur.setId(id);
+                    } else if (specialite != null) {
+                        utilisateur = new Professeur(nom, email, specialite);
+                        utilisateur.setId(id);
+                    } else {
+                        continue;
+                    }
+                    
+                    utilisateurs.add(utilisateur);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Consider throwing a custom exception or logging the error
+        }
+        
+        return utilisateurs;
+    }
+
+	@Override
+	public List<Utilisateur> getTousLesUtilisateurs() {
+		List<Utilisateur> utilisateurs = new ArrayList<>();
+		String sql = "SELECT u.id, u.nom, u.email, e.matricule, p.specialite FROM Utilisateur u " +
+                     "LEFT JOIN Etudiant e ON u.id = e.id " +
+                     "LEFT JOIN Professeur p ON u.id = p.id";
+		
+		try (PreparedStatement pstmt = getConnection().prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+			
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String nom = rs.getString("nom");
+				String email = rs.getString("email");
+				String matricule = rs.getString("matricule");
+				String specialite = rs.getString("specialite");
+				
+				Utilisateur utilisateur;
+				if (matricule != null) {
+					utilisateur = new Etudiant( nom, email, matricule);
+                    utilisateur.setId(id);
+				} else if (specialite != null) {
+					utilisateur = new Professeur( nom, email, specialite);
+                    utilisateur.setId(id);
+				} else {
+continue;				}
+				
+				utilisateurs.add(utilisateur);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			// Consider throwing a custom exception or logging the error
+		}
+		
+		// Print the results in a more readable format
+
+		return utilisateurs;
+	}
+}

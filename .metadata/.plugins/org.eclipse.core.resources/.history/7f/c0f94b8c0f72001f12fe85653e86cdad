@@ -1,0 +1,291 @@
+package metier;
+
+import metier.documents.Document;
+import metier.documents.JournalScientifique;
+import metier.documents.Livre;
+import metier.documents.Magazine;
+import metier.documents.TheseUniversitaire;
+import metier.utilisateurs.Etudiant;
+import metier.utilisateurs.Professeur;
+import metier.utilisateurs.Utilisateur;
+import metier.emprunts.Emprunt;
+
+import java.util.List;
+import java.util.Map;
+import java.time.LocalDate;
+
+import Persistance.documents.DocumentDAO;
+import Persistance.emprunts.EmpruntDAO;
+import Persistance.reservation.reservationDAO;
+import Persistance.utilisateurs.UtilisateurDAO;
+import Utilitaire.Validator;
+
+public class Bibliotheque {
+    private DocumentDAO documentDAO;
+    private UtilisateurDAO utilisateurDAO;
+    private EmpruntDAO empruntDAO;
+
+    /**
+     * Constructeur de la classe Bibliotheque.
+     * @param documentDAO DAO pour les opérations sur les documents.
+     * @param utilisateurDAO DAO pour les opérations sur les utilisateurs.
+     * @param empruntDAO DAO pour les opérations sur les emprunts.
+     */
+    public Bibliotheque(DocumentDAO documentDAO, UtilisateurDAO utilisateurDAO, EmpruntDAO empruntDAO) {
+        this.documentDAO = documentDAO;
+        this.utilisateurDAO = utilisateurDAO;
+        this.empruntDAO = empruntDAO;
+    }
+
+    // Gestion des documents
+
+    /**
+     * Ajoute un document à la bibliothèque.
+     * @param document Le document à ajouter.
+     */
+    public void ajouterDocument(Document document) {
+        documentDAO.ajouter(document);
+    }
+
+    /**
+     * Récupère tous les documents de la bibliothèque.
+     * @return Liste de tous les documents.
+     */
+    public List<Document> getTousLesDocuments() {
+        return documentDAO.getTousLesDocuments();
+    }
+    /**
+     * modification du document de la bibliothèque
+     * @param document
+     */
+    public void modifierDocument() {
+    documentDAO.modifierDocument();
+    }
+
+    /**
+     * Supprime un document de la bibliothèque par son identifiant.
+     * @param id L'identifiant du document à supprimer.
+     */
+    public void supprimerDocument(int id) {
+        documentDAO.supprimer(id);
+    }
+
+    /**
+     * Recherche des documents selon un critère.
+     * @param critere Le critère de recherche.
+     * @return Liste de documents correspondant au critère.
+     */
+    public List<Document> rechercherDocuments(String critere) {
+        return documentDAO.rechercher(critere);
+    }
+
+    // Gestion des utilisateurs
+
+    /**
+     * Ajoute un utilisateur à la bibliothèque.
+     * @param utilisateur L'utilisateur à ajouter.
+     */
+    public void ajouterUtilisateur(Utilisateur utilisateur) {
+        utilisateurDAO.ajouter(utilisateur);
+    }
+
+    /**
+     * Supprime un utilisateur de la bibliothèque par son identifiant.
+     * @param id L'identifiant de l'utilisateur à supprimer.
+     * @return true si l'utilisateur a été supprimé avec succès, false sinon.
+     */
+    public boolean supprimerUtilisateur(int id) {
+        return utilisateurDAO.supprimer(id);
+    }
+
+    /**
+     * Trouve un utilisateur par son identifiant.
+     * @param id L'identifiant de l'utilisateur.
+     * @return L'utilisateur correspondant à l'identifiant.
+     */
+    public Utilisateur trouverUtilisateurParId(int id) {
+        return utilisateurDAO.trouverParId(id);
+    }
+
+    /**
+     * Recherche des utilisateurs selon un critère.
+     * @param critere Le critère de recherche.
+     * @return Liste des utilisateurs correspondant au critère.
+     */
+    public List<Utilisateur> rechercherUtilisateurs(String critere) {
+        return utilisateurDAO.rechercher(critere);
+    }
+
+    /**
+     * Modifie un utilisateur existant.
+     * @param utilisateur L'utilisateur à modifier.
+     */
+    public void modifierUtilisateur(Utilisateur utilisateur) {
+        utilisateurDAO.modifier(utilisateur);
+    }
+
+    // Gestion des emprunts
+
+    /**
+     * Ajoute un emprunt à la bibliothèque.
+     * @param emprunt L'emprunt à ajouter.
+     */
+    public void ajouterEmprunt(Emprunt emprunt) {
+        empruntDAO.ajouter(emprunt);
+    }
+
+    /**
+     * Permet à un utilisateur d'emprunter un document.
+     * @param documentId L'identifiant du document à emprunter.
+     * @param utilisateurId L'identifiant de l'utilisateur emprunteur.
+     */
+    public void emprunterDocument(int documentId, int utilisateurId) {
+        Document document = documentDAO.getById(documentId);
+        Utilisateur utilisateur = utilisateurDAO.trouverParId(utilisateurId);
+
+        // Vérifier si le document et l'utilisateur existent
+        if (document == null || utilisateur == null) {
+            throw new IllegalArgumentException("Document ou utilisateur non trouvé");
+        }
+
+        // Vérifier si le document est déjà emprunté
+        boolean estDisponible = empruntDAO.disponible(documentId);
+        if (!estDisponible) {
+            throw new IllegalStateException("Le document est déjà emprunté");
+        }
+
+        String typeUtilisateur;
+        if (utilisateur instanceof Etudiant) {  
+            typeUtilisateur = "etudiant";
+        } else if (utilisateur instanceof Professeur) {
+            typeUtilisateur = "professeur";
+        } else {
+            throw new IllegalArgumentException("Type d'utilisateur non reconnu");
+        }
+
+        // Vérifier si l'utilisateur n'a pas dépassé ses droits d'emprunt
+        if (!Validator.droitEmprunt(empruntDAO.getNombreEmprunts(utilisateurId), typeUtilisateur)) {
+            throw new IllegalStateException ("L'utilisateur a dépassé sa limite d'emprunts");
+        }
+        // Créer et enregistrer l'emprunt
+        Emprunt nouvelEmprunt = new Emprunt(utilisateur,document );
+        empruntDAO.ajouter(nouvelEmprunt);
+    }
+
+    /**
+     * Permet de retourner un document emprunté.
+     * @param documentId L'identifiant du document à retourner.
+     */
+    public boolean retournerDocument(int documentId) {
+        return empruntDAO.findByDocumentId(documentId).stream()
+            .reduce((first, second) -> second)
+            .filter(emprunt -> emprunt.getDateRetour() == null)
+            .map(emprunt -> {
+                empruntDAO.retournerDocument(emprunt.getId());
+                return true;
+            })
+            .orElse(false);
+    }
+    /**
+     * Permet à un utilisateur de réserver un document.
+     * @param documentId L'identifiant du document à réserver.
+     * @param utilisateurId L'identifiant de l'utilisateur réservant le document.
+     */
+    public void reserverDocument(int documentId, int utilisateurId) {
+        Document document = documentDAO.getById(documentId);
+        Utilisateur utilisateur = utilisateurDAO.trouverParId(utilisateurId);
+
+        if (document == null || utilisateur == null) {
+            throw new IllegalArgumentException("Document ou utilisateur non trouvé");
+        }
+
+        // Vérifier si le document est déjà emprunté
+        if (empruntDAO.disponible(documentId)) {
+            // Si le document est disponible, rediriger vers la méthode d'emprunt
+            emprunterDocument(documentId, utilisateurId);
+            return;
+        }
+
+        // Vérifier si le document est déjà réservé
+        try {
+			reservationDAO.estReserve(documentId)
+			    throw new IllegalStateException("Le document est déjà réservé par un autre utilisateur");
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        // Ajouter l'utilisateur à la liste de réservation
+        reservationDAO.ajouterReservation(documentId, utilisateurId);
+    }
+
+    /**
+     * Annule la réservation d'un document.
+     * @param documentId L'identifiant du document dont la réservation doit être annulée.
+     */
+    public void annulerReservation(int documentId) {
+        // TODO Auto-generated method stub
+    }
+
+    public void modifierDocument(int id, Map<String, Object> modifications) {
+        Document document = documentDAO.getById(id);
+        if (document == null) {
+            System.out.println("Document avec l'ID " + id + " non trouvé.");
+            return;
+        }
+
+        for (Map.Entry<String, Object> entry : modifications.entrySet()) {
+            switch (entry.getKey()) {
+                case "titre":
+                    document.setTitre((String) entry.getValue());
+                    break;
+                case "auteur":
+                    document.setAuteur((String) entry.getValue());
+                    break;
+                case "datePublication":
+                    document.setDatePublication((LocalDate) entry.getValue());
+                    break;
+                case "nombreDePages":
+                    document.setNombreDePages((Integer) entry.getValue());
+                    break;
+                case "isbn":
+                    if (document instanceof Livre) {
+                        ((Livre) document).setIsbn((String) entry.getValue());
+                    }
+                    break;
+                case "numero":
+                    if (document instanceof Magazine) {
+                        ((Magazine) document).setNumero((Integer) entry.getValue());
+                    }
+                    break;
+                case "universite":
+                    if (document instanceof TheseUniversitaire) {
+                        ((TheseUniversitaire) document).setUniversite((String) entry.getValue());
+                    }
+                    break;
+                case "domaine":
+                    if (document instanceof TheseUniversitaire) {
+                        ((TheseUniversitaire) document).setDomaine((String) entry.getValue());
+                    }
+                    break;
+                case "domaineRecherche":
+                    if (document instanceof JournalScientifique) {
+                        ((JournalScientifique) document).setDomaineRecherche((String) entry.getValue());
+                    }
+                    break;
+            }
+        }
+
+        documentDAO.update(document);
+    }
+
+    public Document getDocumentById(int id) {
+        return documentDAO.getById(id);
+    }
+
+	public List<Utilisateur> getTousLesUtilisateurs() {
+		return utilisateurDAO.getTousLesUtilisateurs();
+	}
+	
+}

@@ -1,0 +1,11 @@
+package persistance.emprunts;
+
+import metier.emprunts.Emprunt;
+import java.util.List;
+
+public interface EmpruntDAO {
+    void ajouter(Emprunt emprunt);
+    void supprimer(int id);
+    Emprunt trouverParId(int id);
+    List<Emprunt> rechercher(String critere);
+}

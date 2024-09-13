@@ -1,0 +1,40 @@
+package Persistance.emprunts;
+
+
+import metier.emprunts.Emprunt;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EmpruntDAOImpl implements EmpruntDAO {
+    private Connection connection;
+
+    public EmpruntDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    @Override
+    public void ajouter(Emprunt emprunt) {
+        // Implémentation pour ajouter un emprunt
+    }
+
+    @Override
+    public void supprimer(int id) {
+        // Implémentation pour supprimer un emprunt
+    }
+
+    @Override
+    public Emprunt trouverParId(int id) {
+        // Implémentation pour trouver un emprunt par ID
+        return null;
+    }
+
+    @Override
+    public List<Emprunt> rechercher(String critere) {
+        // Implémentation pour rechercher des emprunts
+        return new ArrayList<>();
+    }
+}

@@ -1,0 +1,5 @@
+package metier.documents;
+
+public interface Empruntable {
+
+}

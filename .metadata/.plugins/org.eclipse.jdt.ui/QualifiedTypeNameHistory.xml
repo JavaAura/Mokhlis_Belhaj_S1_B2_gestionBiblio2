@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="java.time.LocalDate"/>
+    <fullyQualifiedTypeName name="java.sql.Connection"/>
+    <fullyQualifiedTypeName name="Persistance.documents.DocumentDAO"/>
+    <fullyQualifiedTypeName name="Persistance.utilisateurs.UtilisateurDAO"/>
+    <fullyQualifiedTypeName name="Persistance.emprunts.EmpruntDAO"/>
+    <fullyQualifiedTypeName name="java.sql.SQLException"/>
+    <fullyQualifiedTypeName name="java.lang.String"/>
+    <fullyQualifiedTypeName name="metier.documents.Empruntable"/>
+    <fullyQualifiedTypeName name="metier.documents.Reservable"/>
+    <fullyQualifiedTypeName name="metier.Bibliotheque"/>
+    <fullyQualifiedTypeName name="Persistance.emprunts.EmpruntDAOImpl"/>
+    <fullyQualifiedTypeName name="Persistance.utilisateurs.UtilisateurDAOImpl"/>
+    <fullyQualifiedTypeName name="metier.documents.Livre"/>
+    <fullyQualifiedTypeName name="metier.documents.Magazine"/>
+    <fullyQualifiedTypeName name="Persistance.documents.DocumentDAOImpl"/>
+    <fullyQualifiedTypeName name="Persistance.connexion.DatabaseConnection"/>
+    <fullyQualifiedTypeName name="metier.documents.JournalScientifique"/>
+    <fullyQualifiedTypeName name="metier.documents.TheseUniversitaire"/>
+    <fullyQualifiedTypeName name="java.sql.PreparedStatement"/>
+    <fullyQualifiedTypeName name="java.util.HashMap"/>
+    <fullyQualifiedTypeName name="java.util.Map"/>
+    <fullyQualifiedTypeName name="java.lang.Integer"/>
+    <fullyQualifiedTypeName name="java.sql.ResultSet"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="metier.documents.Document"/>
+    <fullyQualifiedTypeName name="java.lang.Override"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="metier.utilisateurs.Professeur"/>
+    <fullyQualifiedTypeName name="metier.utilisateurs.Etudiant"/>
+    <fullyQualifiedTypeName name="metier.utilisateurs.Utilisateur"/>
+    <fullyQualifiedTypeName name="metier.emprunts.Emprunt"/>
+</qualifiedTypeNameHistroy>

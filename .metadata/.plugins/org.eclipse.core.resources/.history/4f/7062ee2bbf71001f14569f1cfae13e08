@@ -1,0 +1,19 @@
+package Persistance.emprunts;
+
+
+import metier.emprunts.Emprunt;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EmpruntDAOImpl implements EmpruntDAO {
+    public EmpruntDAOImpl(Connection connection) {
+    }
+    public EmpruntDAOImpl() {}
+
+    @Override
+    public boolean findByDocumentId(int documentId) {
+    
+        return false;
+    }
+}

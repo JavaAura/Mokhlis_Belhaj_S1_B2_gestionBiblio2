@@ -1,0 +1,5 @@
+package metier.utilisateurs;
+
+public class Professeur {
+
+}

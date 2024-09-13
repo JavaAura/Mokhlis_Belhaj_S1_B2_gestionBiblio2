@@ -1,0 +1,42 @@
+package metier.documents;
+
+import java.time.LocalDate;
+
+public class Magazine extends Document implements Empruntable, Reservable {
+    private int numero;
+
+    // Constructeur
+    public Magazine(int id, String titre, String auteur, LocalDate datePublication, int nombreDePages, int numero) {
+        super(id, titre, auteur, datePublication, nombreDePages);
+        this.numero = numero;
+    }
+
+    // Getters et Setters
+    public int getNumero() { return numero; }
+    public void setNumero(int numero) { this.numero = numero; }
+
+    @Override
+    public void afficherDetails() {
+        System.out.println("Magazine: " + getTitre() + " (Numéro: " + numero + ")");
+    }
+
+    @Override
+    public void emprunter() {
+        System.out.println("Le magazine " + getTitre() + " est emprunté.");
+    }
+
+    @Override
+    public void retourner() {
+        System.out.println("Le magazine " + getTitre() + " est retourné.");
+    }
+
+    @Override
+    public void reserver() {
+        System.out.println("Le magazine " + getTitre() + " est réservé.");
+    }
+
+    @Override
+    public void annulerReservation() {
+        System.out.println("La réservation du magazine " + getTitre() + " est annulée.");
+    }
+}
