@@ -1,5 +1,5 @@
-INDEX VERSION 1.134+C:\Users\yc\Desktop\tessssteur\.metadata\.plugins\org.eclipse.jdt.core
-1865797976.index
-988743064.index
+INDEX VERSION 1.134+C:\Users\yc\Desktop\AURA\Mokhlis_Belhaj_S1_B2_gestionBiblio2\.metadata\.plugins\org.eclipse.jdt.core
 299320891.index
+988743064.index
+1865797976.index
 2590659705.index

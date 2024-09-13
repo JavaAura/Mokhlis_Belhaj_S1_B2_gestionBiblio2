@@ -1,0 +1,3 @@
+db.url=jdbc:example
+db.user=exampleUser
+db.password=examplePassword
