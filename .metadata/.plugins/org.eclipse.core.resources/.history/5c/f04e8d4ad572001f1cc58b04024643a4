@@ -1,0 +1,640 @@
+package Presentation;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.stream.Collectors;
+
+import Persistance.documents.DocumentDAOImpl;
+import Persistance.emprunts.EmpruntDAOImpl;
+import Persistance.reservation.ReservationDAOImpl;
+import Persistance.utilisateurs.UtilisateurDAOImpl;
+import metier.Bibliotheque;
+import metier.documents.Document;
+import metier.documents.Livre;
+import metier.documents.Magazine;
+import metier.documents.TheseUniversitaire;
+import metier.documents.JournalScientifique;
+import metier.utilisateurs.Utilisateur;
+import metier.utilisateurs.Professeur;
+import metier.utilisateurs.Etudiant;
+
+public class ConsoleUI {
+
+    private Scanner scanner;
+    private Bibliotheque bibliotheque;
+
+    public ConsoleUI(Bibliotheque bibliotheque) {
+        this.scanner = new Scanner(System.in);
+        this.bibliotheque = bibliotheque; 
+    }
+    public static void main(String[] args) {
+        Bibliotheque bibliotheque = new Bibliotheque(
+                new DocumentDAOImpl(),      
+                new UtilisateurDAOImpl(),   
+                new EmpruntDAOImpl(),
+                new ReservationDAOImpl()); 
+        ConsoleUI consoleUI = new ConsoleUI(bibliotheque);
+        consoleUI.afficherMenuPrincipal();
+        while (true) {
+            consoleUI.gererChoixMenuPrincipal();
+        }
+    }
+
+    public void afficherMenuPrincipal() {
+        System.out.println("===== Menu Principal =====");
+        System.out.println("1. Gestion des documents");
+        System.out.println("2. Gestion des utilisateurs");
+        System.out.println("3. Gestion des emprunts");
+        System.out.println("4. Gestion des réservations");
+        System.out.println("5. Quitter");
+        System.out.println("==========================");
+        System.out.print("Veuillez choisir une option: ");
+    }
+
+    public void gererChoixMenuPrincipal() {
+        int choix = scanner.nextInt();
+        scanner.nextLine(); 
+
+        switch (choix) {
+            case 1:
+                afficherMenuDocuments();
+                break;
+            case 2:
+                afficherMenuUtilisateurs();
+                break;
+            case 3:
+                afficherMenuEmprunts();
+                break;
+            case 4:
+                afficherMenuReservations();
+                break;
+            case 5:
+                System.out.println("Au revoir !");
+                System.exit(0);
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    // === Gestion des documents ==
+    private void afficherMenuDocuments() {
+        System.out.println("===== Gestion des Documents =====");
+        System.out.println("1. Ajouter un document");
+        System.out.println("2. Supprimer un document");
+        System.out.println("3. Modifier un document");
+        System.out.println("4. Rechercher un document");
+        System.out.println("5. Afficher tous les documents");
+        System.out.println("6. Retour au menu principal");
+        System.out.println("=================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                ajouterDocument();
+                break;
+            case 2:
+                supprimerDocument();
+                break;
+            case 3:
+                modifierDocument();
+                break;
+            case 4:
+                rechercherDocuments();
+                break;
+            case 5:
+                afficherTousDocuments(); 
+                break;
+            case 6:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void afficherTousDocuments() {
+        System.out.println("===== Liste de tous les documents =====");
+        bibliotheque.getTousLesDocuments()
+            .forEach(System.out::println);
+        System.out.println("======================================");
+        afficherMenuDocuments();
+    }
+
+    private void modifierDocument() {
+        System.out.println("===== Modifier un Document =====");
+        System.out.print("Entrez l'ID du document à modifier : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        Document doc = bibliotheque.getDocumentById(id);
+        if (doc == null) {
+            System.out.println("Document non trouvé.");
+            afficherMenuDocuments();
+            return;
+        }
+
+        System.out.println("Document trouvé : " + doc.getTitre());
+        Map<String, Object> modifications = new HashMap<>();
+
+        while (true) {
+            System.out.println("\nQue voulez-vous modifier ?");
+            System.out.println("1. Titre");
+            System.out.println("2. Auteur");
+            System.out.println("3. Date de publication");
+            System.out.println("4. Nombre de pages");
+            if (doc instanceof Livre) {
+                System.out.println("5. ISBN");
+            } else if (doc instanceof Magazine) {
+                System.out.println("5. Numéro");
+            } else if (doc instanceof TheseUniversitaire) {
+                System.out.println("5. Université");
+                System.out.println("6. Domaine");
+            } else if (doc instanceof JournalScientifique) {
+                System.out.println("5. Domaine de recherche");
+            }
+            System.out.println("0. Terminer les modifications");
+            System.out.print("Votre choix : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+            if (choix == 0) break;
+
+            switch (choix) {
+                case 1:
+                    System.out.print("Nouveau titre : ");
+                    modifications.put("titre", scanner.nextLine());
+                    break;
+                case 2:
+                    System.out.print("Nouvel auteur : ");
+                    modifications.put("auteur", scanner.nextLine());
+                    break;
+                case 3:
+                    System.out.print("Nouvelle date de publication (YYYY-MM-DD) : ");
+                    modifications.put("datePublication", LocalDate.parse(scanner.nextLine()));
+                    break;
+                case 4:
+                    System.out.print("Nouveau nombre de pages : ");
+                    modifications.put("nombreDePages", scanner.nextInt());
+                    scanner.nextLine(); // Consommer le retour à la ligne
+                    break;
+                case 5:
+                    if (doc instanceof Livre) {
+                        System.out.print("Nouvel ISBN : ");
+                        modifications.put("isbn", scanner.nextLine());
+                    } else if (doc instanceof Magazine) {
+                        System.out.print("Nouveau numéro : ");
+                        modifications.put("numero", scanner.nextInt());
+                        scanner.nextLine(); // Consommer le retour à la ligne
+                    } else if (doc instanceof TheseUniversitaire) {
+                        System.out.print("Nouvelle université : ");
+                        modifications.put("universite", scanner.nextLine());
+                    } else if (doc instanceof JournalScientifique) {
+                        System.out.print("Nouveau domaine de recherche : ");
+                        modifications.put("domaineRecherche", scanner.nextLine());
+                    }
+                    break;
+                case 6:
+                    if (doc instanceof TheseUniversitaire) {
+                        System.out.print("Nouveau domaine : ");
+                        modifications.put("domaine", scanner.nextLine());
+                    }
+                    break;
+                default:
+                    System.out.println("Choix non valide.");
+                    break;
+            }
+        }
+
+        bibliotheque.modifierDocument(id, modifications);
+        System.out.println("Document modifié avec succès.");
+        afficherMenuDocuments();
+    }
+
+    private void ajouterDocument() {
+        System.out.println("===== Ajouter un Document =====");
+        System.out.println("Choisissez le type de document:");
+        System.out.println("1. Livre");
+        System.out.println("2. Magazine");
+        System.out.println("3. Thèse Universitaire");
+        System.out.println("4. Journal Scientifique");
+        System.out.print("Veuillez choisir une option: ");
+        int type = scanner.nextInt();
+        scanner.nextLine(); 
+
+        System.out.print("Entrez le titre du document: ");
+        String titre = scanner.nextLine();
+        
+        System.out.print("Entrez l'auteur du document: ");
+        String auteur = scanner.nextLine();
+        
+        System.out.print("Entrez la date de publication (YYYY-MM-DD): ");
+        LocalDate datePublication = LocalDate.parse(scanner.nextLine());
+        
+        System.out.print("Entrez le nombre de pages: ");
+        int nombreDePages = scanner.nextInt();
+        scanner.nextLine(); 
+
+        Document document = null;
+        
+        switch (type) {
+            case 1:
+                System.out.print("Entrez l'ISBN du livre: ");
+                String isbn = scanner.nextLine();
+                document = new Livre( titre,  auteur,  datePublication,  nombreDePages, isbn);
+                break;
+            case 2:
+                System.out.print("Entrez le numéro du magazine: ");
+                int numero = scanner.nextInt();
+                scanner.nextLine(); 
+                document = new Magazine(titre, auteur, datePublication, nombreDePages,numero);
+                break;
+            case 3:
+                System.out.print("Entrez l'université de la thèse: ");
+                String universite = scanner.nextLine();
+                System.out.print("Entrez le domaine de la thèse: ");
+                String domaine = scanner.nextLine();
+                document = new TheseUniversitaire( titre, auteur, datePublication, nombreDePages,universite, domaine);
+                break;
+            case 4:
+                System.out.print("Entrez le domaine de recherche du journal: ");
+                String domaineRecherche = scanner.nextLine();
+                document = new JournalScientifique(titre, auteur, datePublication, nombreDePages,domaineRecherche);
+                break;
+            default:
+                System.out.println("Type de document non valide.");
+                return;
+        }
+
+        bibliotheque.ajouterDocument(document);
+        System.out.println("Document ajouté.");
+        afficherMenuDocuments();
+    }
+
+    private void supprimerDocument() {
+        System.out.print("Entrez l'ID du document à supprimer: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        bibliotheque.supprimerDocument(id);
+        System.out.println("Document supprimé.");
+        afficherMenuDocuments();
+
+    }
+
+    private void rechercherDocuments() {
+        System.out.println("===== Recherche de Documents =====");
+        System.out.print("Entrez le critère de recherche: ");
+        String critere = scanner.nextLine();
+        bibliotheque.rechercherDocuments(critere)
+            .forEach(System.out::println);
+        afficherMenuDocuments();
+    }
+
+    private void afficherMenuUtilisateurs() {
+        System.out.println("===== Gestion des Utilisateurs =====");
+        System.out.println("1. Afficher tous les utilisateurs");
+        System.out.println("2. Ajouter un utilisateur");
+        System.out.println("3. Supprimer un utilisateur");
+        System.out.println("4. Rechercher un utilisateur");
+        System.out.println("5. Modifier un utilisateur"); 
+        System.out.println("6. Retour au menu principal");
+        System.out.println("====================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); 
+
+        switch (choix) {
+            case 1:
+                afficherTousUtilisateurs();
+                break;
+            case 2:
+                ajouterUtilisateur();
+                break;
+            case 3:
+                supprimerUtilisateur();
+                break;
+            case 4:
+                rechercherUtilisateurs();
+                break;
+            case 5:
+                modifierUtilisateur();
+                break;
+            case 6:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void afficherTousUtilisateurs() {
+        System.out.println("===== Liste de tous les utilisateurs =====");
+        List<Utilisateur> utilisateurs = bibliotheque.getTousLesUtilisateurs();
+        if (utilisateurs.isEmpty()) {
+            System.out.println("Aucun utilisateur enregistré.");
+        } else {
+            utilisateurs.forEach(user -> {
+                System.out.println("ID: " + user.getId() + 
+                                   "\t| Nom: " + user.getNom() + 
+                                   "\t| Email: " + user.getEmail() + 
+                                   "\t| Type: " + (user instanceof Professeur ? "Professeur" : "Etudiant"));
+            });
+        }
+        System.out.println("=========================================");
+        afficherMenuUtilisateurs();
+    }
+
+    private void ajouterUtilisateur() {
+        System.out.println("===== Ajouter un Utilisateur =====");
+        System.out.println("Choisissez le type d'utilisateur:");
+        System.out.println("1. Professeur");
+        System.out.println("2. Etudiant");
+        System.out.print("Veuillez choisir une option: ");
+        int type = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+
+        System.out.print("Entrez le nom de l'utilisateur: ");
+        String nom = scanner.nextLine();
+
+        System.out.print("Entrez l'email de l'utilisateur: ");
+        String email = scanner.nextLine();
+
+        Utilisateur utilisateur = null;
+        
+        switch (type) {
+            case 1:
+                System.out.print("Entrez la spécialité du professeur: ");
+                String specialite = scanner.nextLine();
+                utilisateur = new Professeur(nom, email, specialite);
+                break;
+            case 2:
+                System.out.print("Entrez le matricule de l'étudiant: ");
+                String matricule = scanner.nextLine();
+                utilisateur = new Etudiant(nom, email, matricule);
+                break;
+            default:
+                System.out.println("Type d'utilisateur non valide.");
+                return;
+        }
+
+        try {
+            bibliotheque.ajouterUtilisateur(utilisateur);
+            System.out.println("Utilisateur ajouté avec succès.");
+        } catch (Exception e) {
+            System.out.println("Erreur lors de l'ajout de l'utilisateur: " + e.getMessage());
+        }
+        afficherMenuUtilisateurs();
+    }
+
+    private void supprimerUtilisateur() {
+        System.out.print("Entrez l'ID de l'utilisateur à supprimer: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+        
+        try {
+            boolean supprime = bibliotheque.supprimerUtilisateur(id);
+            if (supprime) {
+                System.out.println("Utilisateur supprimé avec succès.");
+            } else {
+                System.out.println("Aucun utilisateur trouvé avec l'ID " + id + ".");
+            }
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la suppression de l'utilisateur: " + e.getMessage());
+        }
+        
+        afficherMenuUtilisateurs();
+    }
+
+    private void rechercherUtilisateurs() {
+        System.out.println("===== Recherche d'Utilisateurs =====");
+        System.out.print("Entrez le nom de l'utilisateur à rechercher: ");
+        String nom = scanner.nextLine();
+        List<Utilisateur> utilisateursTrouves = bibliotheque.rechercherUtilisateurs(nom);
+        if (utilisateursTrouves.isEmpty()) {
+            System.out.println("Aucun utilisateur trouvé avec ce nom.");
+        } else {
+            System.out.println("Utilisateurs trouvés :");
+            utilisateursTrouves.forEach(user -> System.out.println(
+                "ID: " + user.getId() + 
+                "\t| Nom: " + user.getNom() + 
+                "\t| Email: " + user.getEmail() + 
+                "\t| Type: " + (user instanceof Professeur ? "Professeur" : "Etudiant")
+            ));
+        }
+        afficherMenuUtilisateurs();
+    }
+    private void modifierUtilisateur() {
+        System.out.println("===== Modifier un Utilisateur =====");
+        System.out.print("Entrez l'ID de l'utilisateur à modifier: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
+    
+        Utilisateur utilisateur = bibliotheque.trouverUtilisateurParId(id);
+        if (utilisateur == null) {
+            System.out.println("Utilisateur non trouvé.");
+            afficherMenuUtilisateurs();
+            return;
+        }
+    
+        System.out.println("Utilisateur trouvé : " + utilisateur.getNom());
+        
+        System.out.print("Nouveau nom (laisser vide pour ne pas changer) : ");
+        String nouveauNom = scanner.nextLine();
+        if (!nouveauNom.isEmpty()) {
+            utilisateur.setNom(nouveauNom);
+        }
+    
+        System.out.print("Nouvel email (laisser vide pour ne pas changer) : ");
+        String nouvelEmail = scanner.nextLine();
+        if (!nouvelEmail.isEmpty()) {
+            utilisateur.setEmail(nouvelEmail);
+        }
+    
+        if (utilisateur instanceof Professeur) {
+            System.out.print("Nouvelle spécialité (laisser vide pour ne pas changer) : ");
+            String nouvelleSpecialite = scanner.nextLine();
+            if (!nouvelleSpecialite.isEmpty()) {
+                ((Professeur) utilisateur).setSpecialite(nouvelleSpecialite);
+            }
+        } else if (utilisateur instanceof Etudiant) {
+            System.out.print("Nouveau matricule (laisser vide pour ne pas changer) : ");
+            String nouveauMatricule = scanner.nextLine();
+            if (!nouveauMatricule.isEmpty()) {
+                ((Etudiant) utilisateur).setMatricule(nouveauMatricule);
+            }
+        }
+    
+        try {
+            bibliotheque.modifierUtilisateur(utilisateur);
+            System.out.println("Utilisateur modifié avec succès.");
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la modification de l'utilisateur: " + e.getMessage());
+        }
+    
+        afficherMenuUtilisateurs();
+    }
+
+    // === Gestion des emprunts ===
+    private void afficherMenuEmprunts() {
+        System.out.println("===== Gestion des Emprunts =====");
+        System.out.println("1. Emprunter un document");
+        System.out.println("2. Retourner un document");
+        System.out.println("3. Retour au menu principal");
+        System.out.println("================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                emprunterDocument();
+                break;
+            case 2:
+                retournerDocument();
+                break;
+            case 3:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void emprunterDocument() {
+        try {
+            System.out.print("Entrez l'ID du document à emprunter: ");
+            int documentId = scanner.nextInt();
+            scanner.nextLine(); // Consommer le retour de ligne
+            
+            System.out.print("Entrez l'ID de l'utilisateur: ");
+            int utilisateurId = scanner.nextInt();
+            scanner.nextLine(); // Consommer le retour de ligne
+            
+            bibliotheque.emprunterDocument(documentId, utilisateurId);
+            System.out.println("Document emprunté avec succès.");
+        } catch (IllegalArgumentException e) {
+            System.out.println( e.getMessage());
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Une erreur inattendue s'est produite : " + e.getMessage());
+        } finally {
+            afficherMenuEmprunts();
+        }
+    }
+
+        private void retournerDocument() {
+            System.out.print("Entrez l'ID du document à retourner: ");
+            int documentId = scanner.nextInt();
+            scanner.nextLine(); // Consommer le retour de ligne
+            boolean retour = bibliotheque.retournerDocument(documentId);
+            if(retour){
+                System.out.println("Document retourné.");
+            }else{
+                System.out.println("Document non emprunté.");
+            }
+        }
+
+    // === Gestion des réservations ===
+    private void afficherMenuReservations() {
+        System.out.println("===== Gestion des Réservations =====");
+        System.out.println("1. Réserver un document");
+        System.out.println("2. Annuler une réservation");
+        System.out.println("3. Retour au menu principal");
+        System.out.println("====================================");
+        System.out.print("Veuillez choisir une option: ");
+        int choix = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour de ligne
+
+        switch (choix) {
+            case 1:
+                reserverDocument();
+                break;
+            case 2:
+                annulerReservation();
+                break;
+            case 3:
+                afficherMenuPrincipal();
+                break;
+            default:
+                System.out.println("Option non valide.");
+                break;
+        }
+    }
+
+    private void reserverDocument() {
+        // Déclaration des variables documentId et utilisateurId uniquement dans la méthode
+        int documentId = 0;
+        int utilisateurId = 0;
+        boolean firstAttempt = true;
+    
+        try {
+            // Demander les informations une seule fois
+            if (firstAttempt) {
+                System.out.print("Entrez l'ID du document à réserver : ");
+                documentId = scanner.nextInt();
+                System.out.print("Entrez l'ID de l'utilisateur : ");
+                utilisateurId = scanner.nextInt();
+                scanner.nextLine(); // Consommer le retour à la ligne
+                firstAttempt = false; // Marquer que c'est la première entrée
+            }
+    
+            // Utiliser les valeurs des variables sans redemander
+            bibliotheque.reserverDocument(documentId, utilisateurId);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        } catch (IllegalStateException e) {
+            System.out.println("Erreur : " + e.getMessage());
+            if (e.getMessage().equals("Le document est disponible, tu peux l'emprunter")) {
+                System.out.print("Voulez-vous emprunter le document maintenant ? (O/N) : ");
+                String reponse = scanner.nextLine();
+                if (reponse.equalsIgnoreCase("O")) {
+                    try {
+                        // Réutiliser documentId et utilisateurId sans redemander
+                        bibliotheque.emprunterDocument(documentId, utilisateurId);
+                        System.out.println("Document emprunté avec succès.");
+                    } catch (Exception ex) {
+                        System.out.println("Erreur lors de l'emprunt : " + ex.getMessage());
+                    }
+                }
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Erreur : Veuillez entrer un nombre valide.");
+            scanner.nextLine(); // Consommer l'entrée invalide
+       
+        }
+        afficherMenuReservations();
+    }
+    
+
+    private void annulerReservation() {
+        System.out.print("Entrez l'ID du document dont vous voulez annuler la réservation: "); 
+        int documentId = scanner.nextInt(); 
+        scanner.nextLine(); 
+        
+        System.out.print("Entrez l'ID de l'utilisateur: "); 
+        int utilisateurId = scanner.nextInt(); 
+        scanner.nextLine(); 
+        try {
+            boolean annule = bibliotheque.annulerReservation(documentId, utilisateurId); 
+            
+            if (annule) {
+                System.out.println("Réservation annulée.");
+            } else {
+                System.out.println("Aucune réservation trouvée pour cet utilisateur.");
+            }
+        } catch (IllegalStateException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+        afficherMenuReservations();
+    }
+}

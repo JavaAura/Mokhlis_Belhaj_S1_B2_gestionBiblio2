@@ -1,8 +1,7 @@
 package Presentation;
 
-
-
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -36,9 +35,9 @@ public class ConsoleUI {
         Bibliotheque bibliotheque = new Bibliotheque(
                 new DocumentDAOImpl(),      
                 new UtilisateurDAOImpl(),   
-                new EmpruntDAOImpl(),      
-                new ReservationDAOImpl()      
-            ); 
+                new EmpruntDAOImpl(),
+                new ReservationDAOImpl());
+
         ConsoleUI consoleUI = new ConsoleUI(bibliotheque);
         consoleUI.afficherMenuPrincipal();
         while (true) {
@@ -124,102 +123,103 @@ public class ConsoleUI {
     }
 
     private void afficherTousDocuments() {
-    	 System.out.println("===== Liste de tous les documents =====");
+        System.out.println("===== Liste de tous les documents =====");
+        bibliotheque.getTousLesDocuments()
+            .forEach(System.out::println);
+        System.out.println("======================================");
+        afficherMenuDocuments();
+    }
 
-            bibliotheque.getTousLesDocuments().forEach(doc -> System.out.println(doc.toString()));
+    private void modifierDocument() {
+        System.out.println("===== Modifier un Document =====");
+        System.out.print("Entrez l'ID du document à modifier : ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consommer le retour à la ligne
 
-    	    System.out.println("======================================");
+        Document doc = bibliotheque.getDocumentById(id);
+        if (doc == null) {
+            System.out.println("Document non trouvé.");
             afficherMenuDocuments();
-	}
-	private void modifierDocument() {
-	    System.out.println("===== Modifier un Document =====");
-	    System.out.print("Entrez l'ID du document à modifier : ");
-	    int id = scanner.nextInt();
-	    scanner.nextLine(); // Consommer le retour à la ligne
+            return;
+        }
 
-	    Document doc = bibliotheque.getDocumentById(id);
-	    if (doc == null) {
-	        System.out.println("Document non trouvé.");
-	        afficherMenuDocuments();
-	        return;
-	    }
+        System.out.println("Document trouvé : " + doc.getTitre());
+        Map<String, Object> modifications = new HashMap<>();
 
-	    System.out.println("Document trouvé : " + doc.getTitre());
-	    Map<String, Object> modifications = new HashMap<>();
+        while (true) {
+            System.out.println("\nQue voulez-vous modifier ?");
+            System.out.println("1. Titre");
+            System.out.println("2. Auteur");
+            System.out.println("3. Date de publication");
+            System.out.println("4. Nombre de pages");
+            if (doc instanceof Livre) {
+                System.out.println("5. ISBN");
+            } else if (doc instanceof Magazine) {
+                System.out.println("5. Numéro");
+            } else if (doc instanceof TheseUniversitaire) {
+                System.out.println("5. Université");
+                System.out.println("6. Domaine");
+            } else if (doc instanceof JournalScientifique) {
+                System.out.println("5. Domaine de recherche");
+            }
+            System.out.println("0. Terminer les modifications");
+            System.out.print("Votre choix : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+            if (choix == 0) break;
 
-	    while (true) {
-	        System.out.println("\nQue voulez-vous modifier ?");
-	        System.out.println("1. Titre");
-	        System.out.println("2. Auteur");
-	        System.out.println("3. Date de publication");
-	        System.out.println("4. Nombre de pages");
-	        if (doc instanceof Livre) {
-	            System.out.println("5. ISBN");
-	        } else if (doc instanceof Magazine) {
-	            System.out.println("5. Numéro");
-	        } else if (doc instanceof TheseUniversitaire) {
-	            System.out.println("5. Université");
-	            System.out.println("6. Domaine");
-	        } else if (doc instanceof JournalScientifique) {
-	            System.out.println("5. Domaine de recherche");
-	        }
-	        System.out.println("0. Terminer les modifications");
-	        System.out.print("Votre choix : ");
-	        int choix = scanner.nextInt();
-	        scanner.nextLine();
-	        if (choix == 0) break;
+            switch (choix) {
+                case 1:
+                    System.out.print("Nouveau titre : ");
+                    modifications.put("titre", scanner.nextLine());
+                    break;
+                case 2:
+                    System.out.print("Nouvel auteur : ");
+                    modifications.put("auteur", scanner.nextLine());
+                    break;
+                case 3:
+                    System.out.print("Nouvelle date de publication (YYYY-MM-DD) : ");
+                    modifications.put("datePublication", LocalDate.parse(scanner.nextLine()));
+                    break;
+                case 4:
+                    System.out.print("Nouveau nombre de pages : ");
+                    modifications.put("nombreDePages", scanner.nextInt());
+                    scanner.nextLine(); // Consommer le retour à la ligne
+                    break;
+                case 5:
+                    if (doc instanceof Livre) {
+                        System.out.print("Nouvel ISBN : ");
+                        modifications.put("isbn", scanner.nextLine());
+                    } else if (doc instanceof Magazine) {
+                        System.out.print("Nouveau numéro : ");
+                        modifications.put("numero", scanner.nextInt());
+                        scanner.nextLine(); // Consommer le retour à la ligne
+                    } else if (doc instanceof TheseUniversitaire) {
+                        System.out.print("Nouvelle université : ");
+                        modifications.put("universite", scanner.nextLine());
+                    } else if (doc instanceof JournalScientifique) {
+                        System.out.print("Nouveau domaine de recherche : ");
+                        modifications.put("domaineRecherche", scanner.nextLine());
+                    }
+                    break;
+                case 6:
+                    if (doc instanceof TheseUniversitaire) {
+                        System.out.print("Nouveau domaine : ");
+                        modifications.put("domaine", scanner.nextLine());
+                    }
+                    break;
+                default:
+                    System.out.println("Choix non valide.");
+                    break;
+            }
+        }
 
-	        switch (choix) {
-	            case 1:
-	                System.out.print("Nouveau titre : ");
-	                modifications.put("titre", scanner.nextLine());
-	                break;
-	            case 2:
-	                System.out.print("Nouvel auteur : ");
-	                modifications.put("auteur", scanner.nextLine());
-	                break;
-	            case 3:
-	                System.out.print("Nouvelle date de publication (YYYY-MM-DD) : ");
-	                modifications.put("datePublication", LocalDate.parse(scanner.nextLine()));
-	                break;
-	            case 4:
-	                System.out.print("Nouveau nombre de pages : ");
-	                modifications.put("nombreDePages", scanner.nextInt());
-	                scanner.nextLine(); // Consommer le retour à la ligne
-	                break;
-	            case 5:
-	                if (doc instanceof Livre) {
-	                    System.out.print("Nouvel ISBN : ");
-	                    modifications.put("isbn", scanner.nextLine());
-	                } else if (doc instanceof Magazine) {
-	                    System.out.print("Nouveau numéro : ");
-	                    modifications.put("numero", scanner.nextInt());
-	                    scanner.nextLine(); // Consommer le retour à la ligne
-	                } else if (doc instanceof TheseUniversitaire) {
-	                    System.out.print("Nouvelle université : ");
-	                    modifications.put("universite", scanner.nextLine());
-	                } else if (doc instanceof JournalScientifique) {
-	                    System.out.print("Nouveau domaine de recherche : ");
-	                    modifications.put("domaineRecherche", scanner.nextLine());
-	                }
-	                break;
-	            case 6:
-	                if (doc instanceof TheseUniversitaire) {
-	                    System.out.print("Nouveau domaine : ");
-	                    modifications.put("domaine", scanner.nextLine());
-	                }
-	                break;
-	            default:
-	                System.out.println("Choix non valide.");
-	                break;
-	        }
-	    }
+        bibliotheque.modifierDocument(id, modifications);
+        System.out.println("Document modifié avec succès.");
+        afficherMenuDocuments();
+    }
 
-	    bibliotheque.modifierDocument(id, modifications);
-	    System.out.println("Document modifié avec succès.");
-	    afficherMenuDocuments();
-	}
-	private void ajouterDocument() {
+    private void ajouterDocument() {
         System.out.println("===== Ajouter un Document =====");
         System.out.println("Choisissez le type de document:");
         System.out.println("1. Livre");
@@ -293,7 +293,8 @@ public class ConsoleUI {
         System.out.println("===== Recherche de Documents =====");
         System.out.print("Entrez le critère de recherche: ");
         String critere = scanner.nextLine();
-        bibliotheque.rechercherDocuments(critere).forEach(doc -> System.out.println(doc.toString())); 
+        bibliotheque.rechercherDocuments(critere)
+            .forEach(System.out::println);
         afficherMenuDocuments();
     }
 

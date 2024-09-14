@@ -11,10 +11,8 @@
     <fullyQualifiedTypeName name="metier.documents.Reservable"/>
     <fullyQualifiedTypeName name="metier.Bibliotheque"/>
     <fullyQualifiedTypeName name="Persistance.emprunts.EmpruntDAOImpl"/>
-    <fullyQualifiedTypeName name="Persistance.utilisateurs.UtilisateurDAOImpl"/>
     <fullyQualifiedTypeName name="metier.documents.Livre"/>
     <fullyQualifiedTypeName name="metier.documents.Magazine"/>
-    <fullyQualifiedTypeName name="Persistance.documents.DocumentDAOImpl"/>
     <fullyQualifiedTypeName name="Persistance.connexion.DatabaseConnection"/>
     <fullyQualifiedTypeName name="metier.documents.JournalScientifique"/>
     <fullyQualifiedTypeName name="metier.documents.TheseUniversitaire"/>
@@ -31,4 +29,7 @@
     <fullyQualifiedTypeName name="metier.utilisateurs.Etudiant"/>
     <fullyQualifiedTypeName name="metier.utilisateurs.Utilisateur"/>
     <fullyQualifiedTypeName name="metier.emprunts.Emprunt"/>
+    <fullyQualifiedTypeName name="Persistance.documents.DocumentDAOImpl"/>
+    <fullyQualifiedTypeName name="Persistance.utilisateurs.UtilisateurDAOImpl"/>
+    <fullyQualifiedTypeName name="Persistance.reservation.ReservationDAOImpl"/>
 </qualifiedTypeNameHistroy>

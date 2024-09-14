@@ -1,0 +1,94 @@
+package Persistance.reservation;
+
+import java.sql.*;
+import Persistance.connexion.DatabaseConnection;
+import metier.emprunts.Reservation;
+
+public class ReservationDAOImpl implements ReservationDAO {
+
+    private Connection connection;
+
+    public ReservationDAOImpl(Connection connection) {
+        this.connection = connection;
+    }
+
+    public ReservationDAOImpl() {
+        try {
+            this.connection = DatabaseConnection.getInstance().getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+	@
+	public boolean estReserve(int documentId) {
+		 String sql = "SELECT COUNT(*) FROM reservation WHERE document_id = ?";
+       try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+           pstmt.setInt(1, documentId);
+           ResultSet rs = pstmt.executeQuery();
+           if (rs.next()) {
+               return rs.getInt(1) > 0;
+           }
+       } catch (SQLException e) {
+           e.printStackTrace();
+       }
+       return false;
+	}
+
+	@Override
+	public boolean ajouterReservation(Reservation reservation) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean annulerReservation(int documentId, int utilisateurId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+//    @Override
+//    public boolean estReserve(int documentId) {
+//        String sql = "SELECT COUNT(*) FROM reservation WHERE document_id = ?";
+//        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+//            pstmt.setInt(1, documentId);
+//            ResultSet rs = pstmt.executeQuery();
+//            if (rs.next()) {
+//                return rs.getInt(1) > 0;
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean ajouterReservation(Reservation reservation) {
+//        String sql = "INSERT INTO reservation (utilisateur_id, document_id, date_reservation) VALUES (?, ?, ?)";
+//        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+//            pstmt.setInt(1, reservation.getUtilisateur().getId());
+//            pstmt.setInt(2, reservation.getDocument().getId());
+//            pstmt.setDate(3, new java.sql.Date(System.currentTimeMillis()));
+//            pstmt.executeUpdate();
+//            return true;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
+//
+//    @Override
+//    public boolean annulerReservation(int documentId, int utilisateurId) {
+//        String sql = "DELETE FROM reservation WHERE document_id = ? AND utilisateur_id = ?";
+//        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+//            pstmt.setInt(1, documentId);
+//            pstmt.setInt(2, utilisateurId);
+//            int affectedRows = pstmt.executeUpdate();   
+//            return affectedRows > 0;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//      
+//    }
+}
